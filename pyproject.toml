@@ -1,0 +1,202 @@
+# File is based on https://hatch.pypa.io/1.12/
+[build-system]
+requires = ["hatchling~=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jinja-file-renderer"
+dynamic = ["version"]
+description = 'A tool for copying a directory, during which *.jinja files are rendered via Jinja2.'
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["jinja", "template"]
+authors = [
+    { name = "Gerd Aschbrenner" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Text Processing :: Markup :: XML",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    'jinja2~=3.1.4',
+    'python-dotenv~=1.0.1',
+]
+
+[project.urls]
+Documentation = "https://readthedocs.com/spranta-devops/jinja-file-renderer"
+Issues = "https://github.com/spranta-devops/jinja-file-renderer/issues"
+Source = "https://github.com/spranta-devops/jinja-file-renderer"
+
+[project.scripts]
+jinja-file-renderer = "jinja_file_renderer.cli:main"
+
+
+
+[tool.hatch.envs.hatch-static-analysis]
+skip-install = false
+extra-dependencies = [
+    "black~=24.4.1",
+    "mypy~=1.10.1",
+    "pytest~=8.2.2",
+    "yamllint~=1.35.1",
+]
+
+[tool.hatch.envs.hatch-static-analysis.scripts]
+# Overwriting origin scripts, but keeping a backup.
+# See https://github.com/pypa/hatch/blob/master/src/hatch/env/internal/static_analysis.py
+origin-format-check = "ruff format{env:HATCH_FMT_ARGS:} --check --diff {args:.}"
+origin-format-fix = "ruff format{env:HATCH_FMT_ARGS:} {args:.}"
+origin-lint-check = "ruff check{env:HATCH_FMT_ARGS:} {args:.}"
+origin-lint-fix = "ruff check{env:HATCH_FMT_ARGS:} --fix {args:.}"
+
+typing-mypy = "mypy --install-types --non-interactive {args:src/jinja_file_renderer tests}"
+lint-check-black = "black --check --diff {args:.}"
+lint-yamllint = "yamllint {args:.}"
+
+format-check = "origin-format-check"
+format-fix = "origin-format-fix"
+lint-check = [
+    "origin-lint-check",
+    "lint-check-black",
+    "typing-mypy",
+    "lint-yamllint",
+]
+lint-fix = [
+    "origin-lint-fix",
+    "lint-check-black",
+    "typing-mypy",
+    "lint-yamllint",
+]
+
+
+[tool.black]
+target-version = ["py39"]
+line-length = 120
+skip-string-normalization = true
+
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+src = ["src"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["jinja_file_renderer"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/*" = ["SLF001", "S101", "S108", "PLR2004"]
+"src/jinja_file_renderer/cli.py" = ["T201"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = false
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+
+
+[tool.hatch.envs.hatch-test]
+extra-args = ["--capture=sys"]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.12", "3.11", "3.10", "3.9"]
+
+[tool.hatch.envs.hatch-test.scripts]
+# Overwriting origin scripts, but keeping a backup.
+origin-run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+origin-run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+origin-cov-combine = "coverage combine"
+origin-cov-report = "coverage report"
+
+run = "origin-run"
+run-cov = "origin-run-cov"
+## create different coverage formats for different IDEs ad their plugins.
+cov-combine = [
+    "rm -f .coverage",
+    "rm -f coverage.lcov",
+    "rm -f lcov.info",
+    "origin-cov-combine",
+    "coverage lcov",
+    "cp coverage.lcov lcov.info",
+]
+cov-report = "coverage report --show-missing"
+
+[tool.coverage.paths]
+jinja_file_renderer = ["src/jinja_file_renderer", "*/jinja-file-renderer/src/jinja_file_renderer"]
+tests = ["tests", "*/jinja-file-renderer/tests"]
+
+[tool.coverage.run]
+source_pkgs = ["jinja_file_renderer", "tests"]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_also = [
+    "if __name__ == '__main__':",
+    "if TYPE_CHECKING:",
+]
+
+
+
+[tool.hatch.build]
+skip-excluded-dirs = true
+directory = "dist"
+
+[tool.hatch.version]
+path = "src/jinja_file_renderer/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jinja_file_renderer"]
+only-packages = true
+
+[tool.hatch.build.targets.wheel.sources]
+"src/jinja_file_renderer" = "jinja_file_renderer"
+
+
+
+[tool.hatch.envs.mkdocs]
+dependencies = [
+    "mkdocs~=1.6.0",
+]
+
+[tool.hatch.envs.mkdocs.scripts]
+build = "mkdocs build"
+serve = "mkdocs serve"

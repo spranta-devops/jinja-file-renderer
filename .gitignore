@@ -1,0 +1,39 @@
+## IntelliJ IDEA generated files to ignore
+*.iml
+*.ipr
+*.iws
+/.idea/
+/out/
+/build/
+/.shelf/
+/.run/
+
+## Visual Studio Code generated files to ignore
+/.vscode/
+/.history/
+
+## Softlink to hatch env (see .envrc), or directory of a venv.
+/venv
+
+## Python build artifacts (hatch build)
+/dist/
+*.tar.gz
+*.whl
+
+## Python test with cverage file (hatch test -a -c)
+__pycache__/
+/.coverage
+/coverage.lcov
+/lcov.info
+
+## pytest cache
+/.pytest_cache
+
+## Ruff cache
+/.ruff_cache
+
+## Mypy cache
+/.mypy_cache
+
+## mkbuilds generated site (hatch run mkdocs build)
+/site/

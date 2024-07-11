@@ -1,0 +1,11 @@
+---
+site_name: 'jinja-file-renderer'
+
+theme:
+  name: 'readthedocs'
+
+nav:
+  - 'Home': 'index.md'
+  - 'About':
+      - 'License': 'about/license.md'
+      - 'Release Notes': 'about/release-notes.md'

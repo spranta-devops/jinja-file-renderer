@@ -1,0 +1,26 @@
+.git_archival.txt  export-subst
+
+## Handle line endings automatically for files detected as text and leave all
+## files untouched detected as binary.
+## Text files should use LF and not CRLF by default (Windows). So git must not
+## convert them. (git uses LF internally by default)
+* text=auto eol=lf
+
+## The above will handle all files NOT defined below.
+## Declaring them explicit prevents false text or binary auto-detection by git.
+## (Usually this is no problem.)
+## Especially all binary files should be declared here below to prevent
+## binary data manipulation by git on auto-detection failure.
+
+# These files are text and should be normalized (Convert crlf => lf)
+.gitignore text eol=lf
+.gitattributes text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+.envrc text eol=lf
+LICENSE text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.jinja text eol=lf
