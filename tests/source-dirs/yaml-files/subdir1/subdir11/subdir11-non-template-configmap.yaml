@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 'jinja-file-renderer'
+  namespace: 'jinja-file-renderer'
+data:
+  key: 'value'
+  USER: '{{ USER }}'  # should not be rendered
+  LANG: '{{ LANG }}'  # should not be rendered

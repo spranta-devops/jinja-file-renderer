@@ -6,6 +6,10 @@ theme:
 
 nav:
   - 'Home': 'index.md'
+  - 'User-Guide': 'user-guide.md'
+  - 'Developer-Guides':
+      - 'Developer-Guide': 'developer-guides/developer-guide.md'
+      - 'Release-Guide': 'developer-guides/release-guide.md'
   - 'About':
       - 'License': 'about/license.md'
       - 'Release Notes': 'about/release-notes.md'

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "jinja-file-renderer"
 dynamic = ["version"]
 description = 'A tool for copying a directory, during which *.jinja files are rendered via Jinja2.'
-readme = "README.md"
+readme = "python-package-readme.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
 keywords = ["jinja", "template"]
@@ -39,7 +39,7 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://readthedocs.com/spranta-devops/jinja-file-renderer"
+Documentation = "https://jinja-file-renderer.readthedocs.io/"
 Issues = "https://github.com/spranta-devops/jinja-file-renderer/issues"
 Source = "https://github.com/spranta-devops/jinja-file-renderer"
 
@@ -67,7 +67,7 @@ origin-lint-fix = "ruff check{env:HATCH_FMT_ARGS:} --fix {args:.}"
 
 typing-mypy = "mypy --install-types --non-interactive {args:src/jinja_file_renderer tests}"
 lint-check-black = "black --check --diff {args:.}"
-lint-yamllint = "yamllint {args:.}"
+lint-yamllint = "yamllint -f parsable {args:.}"
 
 format-check = "origin-format-check"
 format-fix = "origin-format-fix"
@@ -200,3 +200,7 @@ dependencies = [
 [tool.hatch.envs.mkdocs.scripts]
 build = "mkdocs build"
 serve = "mkdocs serve"
+build-archive = [
+    'build',
+    'tar --verbose --create --xz --file jinja-file-renderer-doc-$(hatch version).tar.xz --transform "s,^site/,jinja-file-renderer-doc-$(hatch version)/," site/',
+]

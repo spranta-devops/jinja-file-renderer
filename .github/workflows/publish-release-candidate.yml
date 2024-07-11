@@ -1,0 +1,111 @@
+---
+name: 'publish-release-candidate'
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - 'develop'
+      - 'release/**'
+jobs:
+  lint:
+    name: 'lint'
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - uses: 'actions/setup-python@v5'
+        with:
+          python-version: '3.12'
+      - name: 'Install hatch'
+        run: 'pipx install hatch~=1.12.0'
+      - name: 'Lint'
+        run: 'hatch fmt --check'
+  test:
+    needs:
+      - 'lint'
+    name: "test"
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - name: 'Set up Python ${{ matrix.python-version }}'
+        uses: 'actions/setup-python@v5'
+        with:
+          python-version: '3.12'
+      - name: 'Install hatch'
+        run: 'pipx install hatch~=1.12.0'
+      - name: 'Test'
+        run: 'hatch test --all --cover'
+      - name: 'Collect coverage'
+        uses: 'romeovs/lcov-reporter-action@v0.4.0'
+        with:
+          lcov-file: 'lcov.info'
+  build:
+    needs:
+      - 'test'
+    name: "build"
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - uses: 'actions/setup-python@v5'
+        with:
+          python-version: '3.12'
+      - name: 'Install hatch'
+        run: 'pipx install hatch~=1.12.0'
+      - name: 'Get commit date'
+        id: 'get_commit_date'
+        run: 'echo "::set-output name=date::$(git show --no-patch --format=%cI ${{ github.ref }})"'
+      - name: 'get version via hatch'
+        run: 'echo "VERSION=$(hatch version)" >> ${GITHUB_ENV}'
+      - name: 'Build App'
+        run: 'hatch build'
+      - uses: 'actions/upload-artifact@v4'
+        with:
+          name: 'dist'
+          path: './dist/'
+          if-no-files-found: 'error'
+          retention-days: 5
+      - name: 'Build Doc'
+        run: 'hatch run mkdocs:build-archive'
+      - uses: 'actions/upload-artifact@v4'
+        with:
+          name: 'documentation'
+          path: 'jinja-file-renderer-doc-*.tar.xz'
+          compression-level: 0  # no compression
+          if-no-files-found: 'error'
+          retention-days: 5
+  pypi-test-publish:
+    needs:
+      - 'build'
+    name: 'Upload release to test-PyPI'
+    runs-on: 'ubuntu-latest'
+    environment:
+      name: 'release-candidate'
+      url: 'https://test.pypi.org/p/jinja-file-renderer'
+    permissions:
+      id-token: 'write'  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+      - name: 'Get artifact "dist"'
+        uses: 'actions/download-artifact@v4'
+        with:
+          name: 'dist'
+      - run: 'ls -lah .'
+      - name: 'Publish package distributions to Test-PyPI'
+        uses: 'pypa/gh-action-pypi-publish@release/v1'
+        with:
+          print-hash: true
+  github-release-draft:
+    needs:
+      - 'pypi-test-publish'
+    name: 'Create GitHub Release Draft'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: 'Create GitHub Release Draft'
+        uses: 'actions/create-release@v1'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'  # This token is provided automatically by Actions.
+        with:
+          tag_name: 'v${VERSION}'
+          release_name: '[DRAFT] Release ${VERSION} (${{ steps.get_commit_date.outputs.date }})'
+          body: |-
+            Documentation: https://jinja-file-renderer.readthedocs.io/v${VERSION}
+            Artifacts: https://test.pypi.org/project/jinja-file-renderer/${VERSION}/
+          draft: true
+          prerelease: false

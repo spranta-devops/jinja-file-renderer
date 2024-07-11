@@ -1,0 +1,14 @@
+---
+name: 'label-opened-issue-with-triage'
+on:  # yamllint disable-line rule:truthy
+  issues:
+    types:
+      - 'opened'
+jobs:
+  issue_add_label_triage:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'   # This token is provided automatically by Actions.
+          ISSUE_URL: '${{ github.event.issue.html_url }}'
+        run: 'gh issue edit ${ISSUE_URL} --add-label "triage"'

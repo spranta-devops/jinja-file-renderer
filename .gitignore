@@ -12,7 +12,7 @@
 /.vscode/
 /.history/
 
-## Softlink to hatch env (see .envrc), or directory of a venv.
+## Optional created / used Python venv. You do not need it that way when using hatch.
 /venv
 
 ## Python build artifacts (hatch build)
@@ -37,3 +37,4 @@ __pycache__/
 
 ## mkbuilds generated site (hatch run mkdocs build)
 /site/
+/jinja-file-renderer-doc-*.tar.xz
