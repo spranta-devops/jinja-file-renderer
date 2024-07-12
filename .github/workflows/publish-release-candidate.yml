@@ -37,6 +37,7 @@ jobs:
         uses: 'romeovs/lcov-reporter-action@v0.4.0'
         with:
           lcov-file: 'lcov.info'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
   build:
     needs:
       - 'test'
