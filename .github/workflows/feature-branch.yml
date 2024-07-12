@@ -2,6 +2,8 @@
 name: 'feature-branch-workflow'
 on:  # yamllint disable-line rule:truthy
   pull_request:
+    branches:
+      - 'develop'
   push:
     branches-ignore:
       - 'main'
@@ -35,7 +37,8 @@ jobs:
         run: 'pipx install hatch~=1.12.0'
       - name: 'Test'
         run: 'hatch test --all --cover'
-      - name: 'Collect coverage'
+      - name: 'Add Coverage to pull request'
+        if: 'github.event_name == "pull_request"'
         uses: 'romeovs/lcov-reporter-action@v0.4.0'
         with:
           lcov-file: 'lcov.info'
